@@ -4,91 +4,144 @@ Message::Message(){}
 
 Message::~Message(){}
 
-void Message::readBitsFromKeyboard(){
-    string str;
-    int number = 8;
-    while (1)
-    {
-        str = "";
-        cout << "\nPodaj " << number << " bitow wiadomosci:\n";
-        cin >> str;
-        if (!checkString(str) || str.size() != number)
-        {
-            cout << "Podano nieprawidlowa wiadomosc!";
-        } else
-        {
-            bitset<8> tmpBitset(str);
-            msg_t tmpMsg;
-            tmpMsg.bit = tmpBitset;
-            msg.push_back(tmpMsg);
-            return;
-        }
-    }
-}
-
-void Message::readErrorBitsFromKeyboard(){
-    string str;
-    int number = 8;
-    while(1){
-        str = "";
-        cout << "\nPodaj wiadomosc z jednym bledem:\n";
-        cin >> str;
-        if( !checkString(str) || str.size() != number*2 ) {
-            cout << "Podano nieprawidlowa wiadomosc!";
-        }
-        else {
-            msg_t tmpMsg;
-            string tmpStr = str.substr(8,8);
-            bitset<8> tmpBitset(tmpStr);
-            tmpMsg.parityBit = tmpBitset;
-            tmpStr = str.substr(0,8);
-            bitset<8> tmpBitset2(tmpStr);
-            tmpMsg.bit = tmpBitset2;
-            errorMsg.push_back(tmpMsg);
-            return;
-        }
-    }
-}
-
-bool Message::checkString(string str) {
-    for( auto & x : str ){
-        if( x != '0' && x != '1' ) {
-            return false;
-        }
-    }
-    return true;
-}
-
 void Message::printBits() {
     for(auto & i : msg) {
         cout << i.bit.to_string() << " " << i.parityBit.to_string() << endl;
     }
 }
 
-void Message::printErrorBits() {
-    for(auto & i : errorMsg) {
-        cout << i.bit.to_string() << " " << i.parityBit.to_string() << endl;
+void Message::encode() {
+    int counter;
+    string tmpString;
+    for (auto & k : msg)
+    {
+        tmpString = "";
+        for (int i = 0; i < 8; i++)
+        {
+            counter = 0;
+            for (int j = 0; j < 8; j++)
+            {
+                if (k.bit[7 - j] & matrix[i][j])
+                {
+                    counter++;
+                }
+            }
+            if ((counter % 2) == 1)
+            {
+                tmpString += "1";
+            } else
+            {
+                tmpString += "0";
+            }
+        }
+        bitset<8> tmpBitset(tmpString);
+        k.parityBit = tmpBitset;
     }
 }
 
-void Message::encode() {
-    int counter;
-    string tmpString = "";
-    for( int i = 0; i < 8; i++){
-        counter = 0;
-        for( int j = 0; j < 8; j++){
-            if( msg[0].bit[7-j] & matrix2[i][j] ) {
-                counter++;
-            }
-        }
-        if( (counter%2) == 1 ){
-            tmpString += "1";
-        }
-        else{
-            tmpString += "0";
+void Message::readBaseMsg() {
+    string fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\msg.txt)";
+    char x = 0;
+    int y;
+    msg.clear();
+    fstream File;
+    File.open(fileName, ios::in | ios::binary);
+    if( !File.is_open() ) {
+        cout << "\nNie mozna bylo odczytac pliku.\n";
+    }
+    else {
+        while( File.get(x) ) {
+            y = x;
+            msg_t tmpMsg;
+            bitset<8> tmpBitset(y);
+            tmpMsg.bit = tmpBitset;
+            msg.push_back(tmpMsg);
         }
     }
-    bitset<8> tmpBitset(tmpString);
-    msg[0].parityBit = tmpBitset;
+    File.close();
+}
+
+void Message::writeEncodedMsg() {
+    string tmpString, fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\encodedMsg.txt)";
+    fstream File;
+    File.open(fileName, ios::out | ios::binary);
+    if( !File.is_open() ){
+        cout << "\nNie udalo sie zapisac zakodowanej wiadomosci do pliku.\n";
+    }
+    else {
+        for (auto &z : msg) {
+            tmpString = z.bit.to_string();
+            for(char v : tmpString){
+                File.put(v);
+            }
+            tmpString = z.parityBit.to_string();
+            for(char v : tmpString){
+                File.put(v);
+            }
+        }
+    }
+    File.close();
+}
+
+void Message::readMsgWithErorrs() {
+    msg.clear();
+    string fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\encodedMsg.txt)";
+    char x = 0;
+    fstream File;
+    File.open(fileName, ios::in | ios::binary);
+    if( !File.is_open() ) {
+        cout << "\nNie mozna bylo odczytac pliku.\n";
+    }
+    else {
+        msg_t tmpMsg;
+        string tmpString = "";
+        int bitCount = 0;
+        while( File.get(x) ) {
+            tmpString += x;
+            if( bitCount == 7 ){
+                bitset<8> tmpBitset(tmpString);
+                tmpMsg.bit = tmpBitset;
+                tmpString = "";
+            }
+            else if( bitCount == 15 ){
+                bitset<8> tmpBitset(tmpString);
+                tmpMsg.parityBit = tmpBitset;
+                tmpString = "";
+                bitCount = -1;
+                msg.push_back(tmpMsg);
+            }
+            bitCount++;
+        }
+    }
+    File.close();
+}
+
+void Message::correctErrors() {
+    bool tmpBool;
+    bitset<8> tmpBitset;
+    for( auto &x : msg ) {
+        tmpBitset.reset();
+        for( int i = 0; i < 8; i++ ) {
+            tmpBool = false;
+            for( int j = 0; j < 16; j++) {
+                if( j < 8 ) {
+                    tmpBool ^= x.bit[7-j] & matrix[i][j];
+                }
+                else {
+                    tmpBool ^= x.parityBit[15-j] & matrix[i][j];
+                }
+            }
+            tmpBitset[7-i] = tmpBool;
+        }
+        // Checking if any bits changed
+        if( tmpBitset.any() ){
+            for(int k = 0; k < 16; k++) {
+                for( int l = 0; l < 8; l++) {
+                    if( matrix[l][k] != tmpBitset[7-l] ) break;
+                }
+                // correcting the bits
+            }
+        }
+    }
 }
 

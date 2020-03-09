@@ -6,6 +6,7 @@
 #include "vector"
 #include "string"
 #include "conio.h"
+#include "fstream"
 
 using namespace std;
 
@@ -18,8 +19,7 @@ class Message
 {
 private:
     vector< msg_t > msg;
-    vector< msg_t > errorMsg;
-    bool matrix2[8][16] = {
+    bool matrix[8][16] = {
             {1, 1, 1, 1, 0, 0, 0, 0,  1, 0, 0, 0, 0, 0, 0, 0},
             {1, 1, 0, 0, 1, 1, 0, 0,  0, 1, 0, 0, 0, 0, 0, 0},
             {1, 0, 1, 0, 1, 0, 1, 0,  0, 0, 1, 0, 0, 0, 0, 0},
@@ -34,18 +34,19 @@ public:
 
     virtual ~Message();
 
-    void readBitsFromKeyboard();
-
-    void readErrorBitsFromKeyboard();
-
-    bool checkString(string str);
+    void readBaseMsg();
 
     void printBits();
 
-    void printErrorBits();
-
     void encode();
 
+    void writeEncodedMsg();
+
+    void readMsgWithErorrs();
+
+    void correctErrors();
+
+    int cmpVectorNmatrix(bitset<8> bits, msg_t msg);
 };
 
 

@@ -1,33 +1,11 @@
 #include "Message.h"
 
-int main()
-{
-    int taskNr;
-    while(1) {
-
-        cout << "Wybierz podpunkt zadania (1,2,3) lub 7 by opuscic program: ";
-        cin >> taskNr;
-        if(taskNr == 1){
-            Message m;
-            m.readBitsFromKeyboard();
-            m.encode();
-            cout << "Wiadomosc zakodowana:\n";
-            m.printBits();
-            system("pause");
-            m.readErrorBitsFromKeyboard();
-            system("pause");
-        }
-        else if( taskNr == 2){
-
-        }
-        else if(taskNr == 3){
-
-        }
-        else if(taskNr == 7) break;
-        else{
-            cout << "Podano niepoprawny numer podpunktu.\n";
-        }
-    }
+int main() {
+    Message m;
+    m.readBaseMsg();        // Read message as binary from file msg.txt
+    m.encode();             // Add securing bits to message
+    m.writeEncodedMsg();    // Write secured message to file encodedMsg.txt bits represented by chars
+    m.readMsgWithErorrs();       // Read message from encodedMsg.txt file has 0 / 1 chars read them as bits
 
 
     return 0;
