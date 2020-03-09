@@ -116,32 +116,97 @@ void Message::readMsgWithErorrs() {
     File.close();
 }
 
-void Message::correctErrors() {
+void Message::correctErrors()
+{
     bool tmpBool;
     bitset<8> tmpBitset;
-    for( auto &x : msg ) {
+    for (auto &x : msg)
+    {
         tmpBitset.reset();
-        for( int i = 0; i < 8; i++ ) {
+        for (int i = 0; i < 8; i++)
+        {
             tmpBool = false;
-            for( int j = 0; j < 16; j++) {
-                if( j < 8 ) {
-                    tmpBool ^= x.bit[7-j] & matrix[i][j];
-                }
-                else {
-                    tmpBool ^= x.parityBit[15-j] & matrix[i][j];
+            for (int j = 0; j < 16; j++)
+            {
+                if (j < 8) {
+                    tmpBool ^= (x.bit[7 - j] & matrix[i][j]);
+                } else {
+                    tmpBool ^= (x.parityBit[15 - j] & matrix[i][j]);
                 }
             }
-            tmpBitset[7-i] = tmpBool;
+            tmpBitset[7 - i] = tmpBool;
         }
         // Checking if any bits changed
-        if( tmpBitset.any() ){
-            for(int k = 0; k < 16; k++) {
-                for( int l = 0; l < 8; l++) {
-                    if( matrix[l][k] != tmpBitset[7-l] ) break;
+        if (tmpBitset.any())
+        {
+            for (int k = 0; k < 16; k++)
+            {
+                for (int l = 0; l < 8; l++)
+                {
+                    if (matrix[l][k] != tmpBitset[7 - l]) break;
+                    if( l == 7 ) {
+                        if( k < 8 ){
+                            x.bit.flip(7-k);
+                        } else x.parityBit.flip(7-(k%8));
+                    }
                 }
-                // correcting the bits
+                // Checking for two bits changed
+                vector<bool> tmpBoolVec;
+                bool changedBitsMatch;
+                for (int i = 0; i < 15; ++i)
+                {
+                    for( int n = i+1; n < 16; n++)
+                    {
+                        tmpBoolVec.clear();
+                        int sameBitsCount = 0;
+                        changedBitsMatch = false;
+                        for (int j = 0; j < 8; j++)
+                        {
+                            tmpBoolVec.push_back(matrix[j][i] ^ matrix[j][n]);
+                        }
+                        for (int m = 0; m < 8; m++)
+                        {
+                            if (tmpBitset[7 - m] != tmpBoolVec[m]) break;
+                            sameBitsCount +=1 ;
+                            if( sameBitsCount == 8 ) changedBitsMatch = true;
+                        }
+                        if (changedBitsMatch)
+                        {
+                            if (i < 8)
+                            {
+                                x.bit.flip(7 - i);
+                            } else
+                            {
+                                x.parityBit.flip(7-(i % 8));
+                            }
+                            if( n < 8 )
+                            {
+                                x.bit.flip(7 - n);
+                            } else
+                            {
+                                x.parityBit.flip(7-(n % 8));
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
 
+void Message::writeCorrected() {
+    string fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\correctedMsg.txt)";
+    char c;
+    fstream File;
+    File.open(fileName, ios::out | ios::binary);
+    if( !File.is_open() ){
+        cout << "\nNie udalo sie zapisac zakodowanej wiadomosci do pliku.\n";
+    }
+    else {
+        for (auto &z : msg) {
+            c = z.bit.to_ulong();
+            File.put(c);
+        }
+    }
+    File.clear();
+}

@@ -29,6 +29,7 @@ private:
             {0, 1, 1, 1, 1, 0, 1, 1,  0, 0, 0, 0, 0, 0, 1, 0},
             {1, 1, 1, 0, 0, 1, 1, 1,  0, 0, 0, 0, 0, 0, 0, 1}};
 
+
 public:
     Message();
 
@@ -46,7 +47,7 @@ public:
 
     void correctErrors();
 
-    int cmpVectorNmatrix(bitset<8> bits, msg_t msg);
+    void writeCorrected();
 };
 
 
