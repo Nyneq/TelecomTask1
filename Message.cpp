@@ -40,7 +40,7 @@ void Message::encode() {
 }
 
 void Message::readBaseMsg() {
-    string fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\msg.txt)";
+    string fileName = R"(E:\Studia\Semestr4\Telekomunikacja\Task1\msg.txt)";
     char x = 0;
     int y;
     msg.clear();
@@ -62,7 +62,7 @@ void Message::readBaseMsg() {
 }
 
 void Message::writeEncodedMsg() {
-    string tmpString, fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\encodedMsg.txt)";
+    string tmpString, fileName = R"(E:\Studia\Semestr4\Telekomunikacja\Task1\encodedMsg.txt)";
     fstream File;
     File.open(fileName, ios::out | ios::binary);
     if( !File.is_open() ){
@@ -85,7 +85,7 @@ void Message::writeEncodedMsg() {
 
 void Message::readMsgWithErorrs() {
     msg.clear();
-    string fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\encodedMsg.txt)";
+    string fileName = R"(E:\Studia\Semestr4\Telekomunikacja\Task1\encodedMsg.txt)";
     char x = 0;
     fstream File;
     File.open(fileName, ios::in | ios::binary);
@@ -139,17 +139,16 @@ void Message::correctErrors()
         // Checking if any bits changed
         if (tmpBitset.any())
         {
-            for (int k = 0; k < 16; k++)
-            {
-                for (int l = 0; l < 8; l++)
-                {
+            for (int k = 0; k < 16; k++) {
+                for (int l = 0; l < 8; l++) {
                     if (matrix[l][k] != tmpBitset[7 - l]) break;
-                    if( l == 7 ) {
-                        if( k < 8 ){
-                            x.bit.flip(7-k);
-                        } else x.parityBit.flip(7-(k%8));
+                    if (l == 7) {
+                        if (k < 8) {
+                            x.bit.flip(7 - k);
+                        } else x.parityBit.flip(7 - (k % 8));
                     }
                 }
+            }
                 // Checking for two bits changed
                 vector<bool> tmpBoolVec;
                 bool changedBitsMatch;
@@ -192,10 +191,9 @@ void Message::correctErrors()
             }
         }
     }
-}
 
 void Message::writeCorrected() {
-    string fileName = R"(E:\STUDIA\Semestr4\Telekom\TelecomTask1\correctedMsg.txt)";
+    string fileName = R"(E:\Studia\Semestr4\Telekomunikacja\Task1\correctedMsg.txt)";
     char c;
     fstream File;
     File.open(fileName, ios::out | ios::binary);

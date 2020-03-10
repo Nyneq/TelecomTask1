@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.15)
-project(Tk1)
+cmake_minimum_required(VERSION 3.14)
+project(Task1)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Tk1 main.cpp Message.cpp Message.h)
+add_executable(Task1
+            main.cpp
+            Message.cpp
+            Message.h)
