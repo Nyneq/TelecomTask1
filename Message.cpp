@@ -62,7 +62,8 @@ void Message::readBaseMsg() {
 }
 
 void Message::writeEncodedMsg() {
-    string tmpString, fileName = R"(E:\Studia\Semestr4\Telekomunikacja\Task1\encodedMsg.txt)";
+    string fileName = R"(E:\Studia\Semestr4\Telekomunikacja\Task1\encodedMsg.txt)";
+    char tmpChar;
     fstream File;
     File.open(fileName, ios::out | ios::binary);
     if( !File.is_open() ){
@@ -70,14 +71,10 @@ void Message::writeEncodedMsg() {
     }
     else {
         for (auto &z : msg) {
-            tmpString = z.bit.to_string();
-            for(char v : tmpString){
-                File.put(v);
-            }
-            tmpString = z.parityBit.to_string();
-            for(char v : tmpString){
-                File.put(v);
-            }
+            tmpChar = z.bit.to_ulong();
+            File.put(tmpChar);
+            tmpChar = z.parityBit.to_ulong();
+            File.put(tmpChar);
         }
     }
     File.close();
@@ -95,8 +92,23 @@ void Message::readMsgWithErorrs() {
     else {
         msg_t tmpMsg;
         string tmpString = "";
-        int bitCount = 0;
+        int y;
+        bool flag = true;
         while( File.get(x) ) {
+            if(flag){
+                y = x;
+                bitset<8> tmpBitset(y);
+                tmpMsg.bit = tmpBitset;
+                flag = false;
+            } else {
+                y = x;
+                bitset<8> tmpBitset(y);
+                tmpMsg.parityBit = tmpBitset;
+                msg.push_back(tmpMsg);
+                flag = true;
+            }
+
+            /*
             tmpString += x;
             if( bitCount == 7 ){
                 bitset<8> tmpBitset(tmpString);
@@ -111,6 +123,7 @@ void Message::readMsgWithErorrs() {
                 msg.push_back(tmpMsg);
             }
             bitCount++;
+            */
         }
     }
     File.close();

@@ -1,6 +1,11 @@
 #include "Message.h"
 
 int main() {
+    cout << "Telekomunikacja i przetwarzanie sygnalow\n";
+    cout << "Zadanie 1: Kody wykrywajace i kody korygujace bledy transmisji\n";
+    cout << "Wykonane przez:\n";
+    cout << "Daniel Londka 224360\n";
+    cout << "Szymon Jacon 224306\n\n";
     Message m;
     m.readBaseMsg();        // Read message as binary from file msg.txt
     m.encode();             // Add securing bits to message
